@@ -43,12 +43,12 @@ class S3Tokenizer(S3TokenizerV2):
         )
         self.register_buffer(
             "_mel_filters",
-            torch.FloatTensor(_mel_filters),
+            torch.tensor(_mel_filters, dtype=torch.float32),
         )
 
         self.register_buffer(
             "window",
-            torch.hann_window(self.n_fft),
+            torch.hann_window(self.n_fft, dtype=torch.float32),
         )
 
     def pad(self, wavs, sr) -> List[torch.Tensor]:
@@ -150,7 +150,7 @@ class S3Tokenizer(S3TokenizerV2):
         if not torch.is_tensor(audio):
             audio = torch.from_numpy(audio)
 
-        audio = audio.to(self.device)
+        audio = audio.to(device=self.device, dtype=torch.float32)
         if padding > 0:
             audio = F.pad(audio, (0, padding))
         stft = torch.stft(

@@ -40,7 +40,9 @@ def mel_spectrogram(y, n_fft=1920, num_mels=80, sampling_rate=24000, hop_size=48
     """
 
     if isinstance(y, np.ndarray):
-        y = torch.tensor(y).float()
+        y = torch.tensor(y, dtype=torch.float32)
+    else:
+        y = y.to(dtype=torch.float32)
 
     if len(y.shape) == 1:
         y = y[None, ]
@@ -54,8 +56,8 @@ def mel_spectrogram(y, n_fft=1920, num_mels=80, sampling_rate=24000, hop_size=48
     global mel_basis, hann_window  # pylint: disable=global-statement,global-variable-not-assigned
     if f"{str(fmax)}_{str(y.device)}" not in mel_basis:
         mel = librosa_mel_fn(sr=sampling_rate, n_fft=n_fft, n_mels=num_mels, fmin=fmin, fmax=fmax)
-        mel_basis[str(fmax) + "_" + str(y.device)] = torch.from_numpy(mel).float().to(y.device)
-        hann_window[str(y.device)] = torch.hann_window(win_size).to(y.device)
+        mel_basis[str(fmax) + "_" + str(y.device)] = torch.from_numpy(mel).to(device=y.device, dtype=torch.float32)
+        hann_window[str(y.device)] = torch.hann_window(win_size, dtype=torch.float32).to(y.device)
 
     y = torch.nn.functional.pad(
         y.unsqueeze(1), (int((n_fft - hop_size) / 2), int((n_fft - hop_size) / 2)), mode="reflect"

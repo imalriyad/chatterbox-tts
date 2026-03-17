@@ -71,7 +71,7 @@ class PositionalEncoding(torch.nn.Module):
             torch.Tensor: for compatibility to RelPositionalEncoding
         """
 
-        self.pe = self.pe.to(x.device)
+        self.pe = self.pe.to(device=x.device, dtype=x.dtype)
         pos_emb = self.position_encoding(offset, x.size(1), False)
         x = x * self.xscale + pos_emb
         return self.dropout(x), self.dropout(pos_emb)
@@ -141,7 +141,7 @@ class RelPositionalEncoding(PositionalEncoding):
             torch.Tensor: Encoded tensor (batch, time, `*`).
             torch.Tensor: Positional embedding tensor (1, time, `*`).
         """
-        self.pe = self.pe.to(x.device)
+        self.pe = self.pe.to(device=x.device, dtype=x.dtype)
         x = x * self.xscale
         pos_emb = self.position_encoding(offset, x.size(1), False)
         return self.dropout(x), self.dropout(pos_emb)
@@ -154,10 +154,10 @@ class WhisperPositionalEncoding(PositionalEncoding):
     def __init__(self, d_model: int, dropout_rate: float, max_len: int = 1500):
         super().__init__(d_model, dropout_rate, max_len)
         self.xscale = 1.0
-        log_timescale_increment = np.log(10000) / (d_model // 2 - 1)
-        inv_timescales = torch.exp(-log_timescale_increment *
-                                   torch.arange(d_model // 2))
-        scaled_time = torch.arange(max_len)[:, np.newaxis] * \
+        log_timescale_increment = np.log(10000.0) / (d_model // 2 - 1)
+        inv_timescales = torch.exp(torch.tensor(-log_timescale_increment *
+                                   np.arange(d_model // 2), dtype=torch.float32))
+        scaled_time = torch.arange(max_len, dtype=torch.float32)[:, np.newaxis] * \
             inv_timescales[np.newaxis, :]
         pe = torch.cat([torch.sin(scaled_time), torch.cos(scaled_time)], dim=1)
         delattr(self, "pe")

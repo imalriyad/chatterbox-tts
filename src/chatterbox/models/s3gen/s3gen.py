@@ -126,9 +126,8 @@ class S3Token2Mel(torch.nn.Module):
         if isinstance(ref_wav, np.ndarray):
             ref_wav = torch.from_numpy(ref_wav).float()
 
-        # Ensure ref_wav is float before moving to device, if it's not already
-        if not torch.is_floating_point(ref_wav):
-            ref_wav = ref_wav.float()
+        # Ensure ref_wav is float32 before moving to device (always cast to float32 to catch float64)
+        ref_wav = ref_wav.to(dtype=torch.float32)
 
         if ref_wav.device != device:
             ref_wav = ref_wav.to(device)
@@ -257,8 +256,8 @@ class S3Token2Wav(S3Token2Mel):
 
         # silence out a few ms and fade audio in to reduce artifacts
         n_trim = S3GEN_SR // 50  # 20ms = half of a frame
-        trim_fade = torch.zeros(2 * n_trim)
-        trim_fade[n_trim:] = (torch.cos(torch.linspace(torch.pi, 0, n_trim)) + 1) / 2
+        trim_fade = torch.zeros(2 * n_trim, dtype=torch.float32)
+        trim_fade[n_trim:] = (torch.cos(torch.linspace(torch.pi, 0, n_trim, dtype=torch.float32)) + 1) / 2
         self.register_buffer("trim_fade", trim_fade, persistent=False) # (buffers get automatic device casting)
         self.estimator_dtype = "fp32"
 

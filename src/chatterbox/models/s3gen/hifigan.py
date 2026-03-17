@@ -79,7 +79,7 @@ class Snake(nn.Module):
         alpha = self.alpha.unsqueeze(0).unsqueeze(-1) # line up with x to [B, C, T]
         if self.alpha_logscale:
             alpha = torch.exp(alpha)
-        x = x + (torch.tensor(1.0, device=x.device, dtype=x.dtype) / (alpha + self.no_div_by_zero)) * pow(sin(x * alpha), 2)
+        x = x + (torch.tensor(1.0, device=x.device, dtype=x.dtype) / (alpha + self.no_div_by_zero)) * pow(torch.sin(x * alpha), 2)
 
         return x
 
@@ -204,7 +204,7 @@ class SineGen(torch.nn.Module):
         :return: [B, 1, sample_len]
         """
 
-        F_mat = torch.zeros((f0.size(0), self.harmonic_num + 1, f0.size(-1))).to(f0.device)
+        F_mat = torch.zeros((f0.size(0), self.harmonic_num + 1, f0.size(-1)), device=f0.device, dtype=f0.dtype)
         for i in range(self.harmonic_num + 1):
             F_mat[:, i: i + 1, :] = f0 * (i + 1) / self.sampling_rate
 
