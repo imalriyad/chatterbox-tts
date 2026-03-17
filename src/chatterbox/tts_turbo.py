@@ -85,11 +85,12 @@ class Conditionals:
     t3: T3Cond
     gen: dict
 
-    def to(self, device):
-        self.t3 = self.t3.to(device=device)
+    def to(self, device, dtype=None):
+        self.t3 = self.t3.to(device=device, dtype=dtype)
         for k, v in self.gen.items():
             if torch.is_tensor(v):
-                self.gen[k] = v.to(device=device)
+                target_dtype = dtype if v.is_floating_point() else None
+                self.gen[k] = v.to(device=device, dtype=target_dtype)
         return self
 
     def save(self, fpath: Path):
@@ -128,6 +129,13 @@ class ChatterboxTurboTTS:
         self.device = device
         self.conds = conds
         self.watermarker = perth.PerthImplicitWatermarker()
+
+    @property
+    def dtype(self):
+        return next(self.t3.parameters()).dtype
+
+    def _normalize_conditionals(self, conds: Conditionals) -> Conditionals:
+        return conds.to(device=self.device, dtype=self.dtype)
 
     @classmethod
     def from_local(cls, ckpt_dir, device) -> 'ChatterboxTurboTTS':
@@ -178,9 +186,17 @@ class ChatterboxTurboTTS:
         conds = None
         builtin_voice = ckpt_dir / "conds.pt"
         if builtin_voice.exists():
-            conds = Conditionals.load(builtin_voice, map_location=map_location).to(device)
+            conds = cls._normalize_loaded_conditionals(
+                Conditionals.load(builtin_voice, map_location=map_location),
+                device=device,
+                dtype=next(t3.parameters()).dtype,
+            )
 
         return cls(t3, s3gen, ve, tokenizer, device, conds=conds)
+
+    @staticmethod
+    def _normalize_loaded_conditionals(conds: Conditionals, device, dtype) -> Conditionals:
+        return conds.to(device=device, dtype=dtype)
 
     @classmethod
     def from_pretrained(cls, device) -> 'ChatterboxTurboTTS':
@@ -224,6 +240,7 @@ class ChatterboxTurboTTS:
             s3gen_ref_wav = self.norm_loudness(s3gen_ref_wav, _sr)
 
         ref_16k_wav = librosa.resample(s3gen_ref_wav, orig_sr=S3GEN_SR, target_sr=S3_SR)
+        ref_16k_wav = ref_16k_wav.astype('float32', copy=False)
 
         s3gen_ref_wav = s3gen_ref_wav[:self.DEC_COND_LEN]
         s3gen_ref_dict = self.s3gen.embed_ref(s3gen_ref_wav, S3GEN_SR, device=self.device)
@@ -242,8 +259,8 @@ class ChatterboxTurboTTS:
             speaker_emb=ve_embed,
             cond_prompt_speech_tokens=t3_cond_prompt_tokens,
             emotion_adv=exaggeration * torch.ones(1, 1, 1, dtype=torch.float32),
-        ).to(device=self.device)
-        self.conds = Conditionals(t3_cond, s3gen_ref_dict)
+        ).to(device=self.device, dtype=self.dtype)
+        self.conds = self._normalize_conditionals(Conditionals(t3_cond, s3gen_ref_dict))
 
     def generate(
         self,
@@ -262,6 +279,7 @@ class ChatterboxTurboTTS:
             self.prepare_conditionals(audio_prompt_path, exaggeration=exaggeration, norm_loudness=norm_loudness)
         else:
             assert self.conds is not None, "Please `prepare_conditionals` first or specify `audio_prompt_path`"
+            self.conds = self._normalize_conditionals(self.conds)
 
         if cfg_weight > 0.0 or exaggeration > 0.0 or min_p > 0.0:
             logger.warning("CFG, min_p and exaggeration are not supported by Turbo version and will be ignored.")
@@ -293,4 +311,4 @@ class ChatterboxTurboTTS:
         )
         wav = wav.squeeze(0).detach().cpu().numpy()
         watermarked_wav = self.watermarker.apply_watermark(wav, sample_rate=self.sr)
-        return torch.from_numpy(watermarked_wav).unsqueeze(0)
+        return torch.from_numpy(watermarked_wav).to(dtype=torch.float32).unsqueeze(0)
