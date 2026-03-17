@@ -62,9 +62,9 @@ class Snake(nn.Module):
         # initialize alpha
         self.alpha_logscale = alpha_logscale
         if self.alpha_logscale: # log scale alphas initialized to zeros
-            self.alpha = Parameter(torch.zeros(in_features) * alpha)
+            self.alpha = Parameter(torch.zeros(in_features, dtype=torch.float32) * float(alpha))
         else: # linear scale alphas initialized to ones
-            self.alpha = Parameter(torch.ones(in_features) * alpha)
+            self.alpha = Parameter(torch.ones(in_features, dtype=torch.float32) * float(alpha))
 
         self.alpha.requires_grad = alpha_trainable
 
@@ -79,7 +79,7 @@ class Snake(nn.Module):
         alpha = self.alpha.unsqueeze(0).unsqueeze(-1) # line up with x to [B, C, T]
         if self.alpha_logscale:
             alpha = torch.exp(alpha)
-        x = x + (1.0 / (alpha + self.no_div_by_zero)) * pow(sin(x * alpha), 2)
+        x = x + (torch.tensor(1.0, device=x.device, dtype=x.dtype) / (alpha + self.no_div_by_zero)) * pow(sin(x * alpha), 2)
 
         return x
 

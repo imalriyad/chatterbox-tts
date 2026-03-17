@@ -50,11 +50,11 @@ class SnakeBeta(nn.Module):
         # initialize alpha
         self.alpha_logscale = alpha_logscale
         if self.alpha_logscale:  # log scale alphas initialized to zeros
-            self.alpha = nn.Parameter(torch.zeros(self.in_features) * alpha)
-            self.beta = nn.Parameter(torch.zeros(self.in_features) * alpha)
+            self.alpha = nn.Parameter(torch.zeros(self.in_features, dtype=torch.float32) * float(alpha))
+            self.beta = nn.Parameter(torch.zeros(self.in_features, dtype=torch.float32) * float(alpha))
         else:  # linear scale alphas initialized to ones
-            self.alpha = nn.Parameter(torch.ones(self.in_features) * alpha)
-            self.beta = nn.Parameter(torch.ones(self.in_features) * alpha)
+            self.alpha = nn.Parameter(torch.ones(self.in_features, dtype=torch.float32) * float(alpha))
+            self.beta = nn.Parameter(torch.ones(self.in_features, dtype=torch.float32) * float(alpha))
 
         self.alpha.requires_grad = alpha_trainable
         self.beta.requires_grad = alpha_trainable
@@ -75,7 +75,8 @@ class SnakeBeta(nn.Module):
             alpha = self.alpha
             beta = self.beta
 
-        x = x + (1.0 / (beta + self.no_div_by_zero)) * torch.pow(torch.sin(x * alpha), 2)
+        one = torch.tensor(1.0, device=x.device, dtype=x.dtype)
+        x = x + (one / (beta + self.no_div_by_zero)) * torch.pow(torch.sin(x * alpha), 2)
 
         return x
 
