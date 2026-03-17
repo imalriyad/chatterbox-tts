@@ -54,7 +54,7 @@ class ChatterboxVC:
         s3gen.load_state_dict(
             load_file(ckpt_dir / "s3gen.safetensors"), strict=False
         )
-        s3gen.to(device).eval()
+        s3gen.to(device).float().eval()
 
         return cls(s3gen, device, ref_dict=ref_dict)
 

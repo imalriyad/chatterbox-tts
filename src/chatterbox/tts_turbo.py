@@ -143,7 +143,7 @@ class ChatterboxTurboTTS:
         ve.load_state_dict(
             load_file(ckpt_dir / "ve.safetensors")
         )
-        ve.to(device).eval()
+        ve.to(device).float().eval()
 
         # Turbo specific hp
         hp = T3Config(text_tokens_dict_size=50276)
@@ -160,14 +160,14 @@ class ChatterboxTurboTTS:
             t3_state = t3_state["model"][0]
         t3.load_state_dict(t3_state)
         del t3.tfmr.wte
-        t3.to(device).eval()
+        t3.to(device).float().eval()
 
         s3gen = S3Gen(meanflow=True)
         weights = load_file(ckpt_dir / "s3gen_meanflow.safetensors")
         s3gen.load_state_dict(
             weights, strict=True
         )
-        s3gen.to(device).eval()
+        s3gen.to(device).float().eval()
 
         tokenizer = AutoTokenizer.from_pretrained(ckpt_dir)
         if tokenizer.pad_token is None:
@@ -236,12 +236,12 @@ class ChatterboxTurboTTS:
 
         # Voice-encoder speaker embedding
         ve_embed = torch.from_numpy(self.ve.embeds_from_wavs([ref_16k_wav], sample_rate=S3_SR))
-        ve_embed = ve_embed.mean(axis=0, keepdim=True).to(self.device)
+        ve_embed = ve_embed.mean(axis=0, keepdim=True).to(device=self.device, dtype=torch.float32)
 
         t3_cond = T3Cond(
             speaker_emb=ve_embed,
             cond_prompt_speech_tokens=t3_cond_prompt_tokens,
-            emotion_adv=exaggeration * torch.ones(1, 1, 1),
+            emotion_adv=exaggeration * torch.ones(1, 1, 1, dtype=torch.float32),
         ).to(device=self.device)
         self.conds = Conditionals(t3_cond, s3gen_ref_dict)
 

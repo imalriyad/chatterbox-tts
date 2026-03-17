@@ -318,7 +318,7 @@ class T3(nn.Module):
 
         bos_token = torch.tensor([[self.hp.start_speech_token]], dtype=torch.long, device=device)
         bos_embed = self.speech_emb(bos_token)  # shape: (B, 1, embed_dim)
-        bos_embed = bos_embed + self.speech_pos_emb.get_fixed_embedding(0)
+        bos_embed = bos_embed + self.speech_pos_emb.get_fixed_embedding(0).float()
 
         # batch_size=2 for CFG
         bos_embed = torch.cat([bos_embed, bos_embed])
@@ -354,7 +354,7 @@ class T3(nn.Module):
             # CFG combine  → (1, V)
             cond   = logits_step[0:1, :]
             uncond = logits_step[1:2, :]
-            cfg = torch.as_tensor(cfg_weight, device=cond.device, dtype=cond.dtype)
+            cfg = torch.as_tensor(cfg_weight, device=cond.device, dtype=torch.float32)
             logits = cond + cfg * (cond - uncond)
             
             # Apply alignment stream analyzer integrity checks
@@ -391,7 +391,7 @@ class T3(nn.Module):
 
             # Get embedding for the new token.
             next_token_embed = self.speech_emb(next_token)
-            next_token_embed = next_token_embed + self.speech_pos_emb.get_fixed_embedding(i + 1)
+            next_token_embed = next_token_embed + self.speech_pos_emb.get_fixed_embedding(i + 1).float()
 
             #  For CFG
             next_token_embed = torch.cat([next_token_embed, next_token_embed])

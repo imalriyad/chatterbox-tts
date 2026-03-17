@@ -45,4 +45,6 @@ checkpoints/
 .gradio
 
 # Ignore generated sample .wav files
-**/*.wav
+*.wav
+!modules/voice_samples/*.wav
+
