@@ -34,11 +34,18 @@ def format_voice_display_name(voice_name):
 def load_voices():
     """Load all available voice samples from the voice_samples directory."""
     VOICES["samples"].clear()
-    for name in os.listdir(VOICE_DIR):
-        if name.endswith(".wav"):
-            base = os.path.splitext(name)[0]
-            wav_path = os.path.join(VOICE_DIR, name)
-            VOICES["samples"][base] = wav_path
+    if not os.path.exists(VOICE_DIR):
+        print(f"⚠️  Voice directory not found at: {VOICE_DIR}")
+        return []
+        
+    files = [f for f in os.listdir(VOICE_DIR) if f.endswith(".wav")]
+    print(f"📂 Loading {len(files)} voices from: {VOICE_DIR}")
+    
+    for name in files:
+        base = os.path.splitext(name)[0]
+        wav_path = os.path.join(VOICE_DIR, name)
+        VOICES["samples"][base] = wav_path
+        
     return list(VOICES["samples"].keys())
 
 
@@ -47,7 +54,7 @@ def get_voices_for_language(language_code):
     voices = []
     
     # Add default sample for this language if available
-    if language_code in LANGUAGE_CONFIG and language_code != "en":
+    if language_code in LANGUAGE_CONFIG:
         voices.append(f"Default ({SUPPORTED_LANGUAGES[language_code]})")
     
     # Add cloned voices for this language

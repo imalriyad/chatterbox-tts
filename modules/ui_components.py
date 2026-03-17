@@ -22,7 +22,8 @@ def create_tts_tab():
                 label="Select Voice",
                 choices=get_voices_for_language("en"),
                 value=f"Default ({SUPPORTED_LANGUAGES['en']})",
-                info="Select a cloned voice or use default"
+                info="Select a cloned voice or use default",
+                allow_custom_value=True
             )
             
             preview_audio_tts = gr.Audio(label="Voice Preview", interactive=False, visible=True)
@@ -86,7 +87,8 @@ def create_multilingual_tab():
                 label="Select Voice",
                 choices=get_voices_for_language("fr"),
                 value=f"Default ({SUPPORTED_LANGUAGES['fr']})",
-                info="Select a voice for this language"
+                info="Select a voice for this language",
+                allow_custom_value=True
             )
             
             sample_audio_mtl = gr.Audio(
@@ -149,7 +151,8 @@ def create_voice_conversion_tab():
                 label="Target Voice",
                 choices=["None"] + get_all_voices_with_gender(),
                 value="None",
-                info="Select target voice or use default"
+                info="Select target voice or use default",
+                allow_custom_value=True
             )
             
             preview_audio_vc = gr.Audio(label="Target Voice Preview", interactive=False, visible=True)
@@ -249,7 +252,8 @@ def create_clone_voice_tab():
                     label="Select Voice to Delete",
                     choices=["None"] + current_voices,
                     value="None",
-                    info="Select a cloned voice to delete"
+                    info="Select a cloned voice to delete",
+                    allow_custom_value=True
                 )
                 delete_btn_clone = gr.Button("🗑️ Delete Voice", variant="secondary", size="sm")
             
@@ -317,7 +321,8 @@ def create_turbo_tab():
                 label="Select Voice (Required for Turbo)",
                 choices=get_voices_for_language("en"),
                 value=f"Default ({SUPPORTED_LANGUAGES['en']})",
-                info="Turbo requires a reference voice clip for cloning"
+                info="Turbo requires a reference voice clip for cloning",
+                allow_custom_value=True
             )
             
             preview_audio_turbo = gr.Audio(label="Voice Preview", interactive=False, visible=True)
