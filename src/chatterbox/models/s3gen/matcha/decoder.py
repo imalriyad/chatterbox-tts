@@ -22,8 +22,8 @@ class SinusoidalPosEmb(torch.nn.Module):
             x = x.unsqueeze(0)
         device = x.device
         half_dim = self.dim // 2
-        emb = math.log(10000) / (half_dim - 1)
-        emb = torch.exp(torch.arange(half_dim, device=device).float() * -emb)
+        emb = torch.tensor(math.log(10000) / (half_dim - 1), device=device, dtype=torch.float32)
+        emb = torch.exp(torch.arange(half_dim, device=device, dtype=torch.float32) * -emb)
         emb = scale * x.unsqueeze(1) * emb.unsqueeze(0)
         emb = torch.cat((emb.sin(), emb.cos()), dim=-1)
         return emb
@@ -378,6 +378,7 @@ class Decoder(nn.Module):
             _type_: _description_
         """
 
+        t = t.to(dtype=x.dtype)
         t = self.time_embeddings(t)
         t = self.time_mlp(t)
 

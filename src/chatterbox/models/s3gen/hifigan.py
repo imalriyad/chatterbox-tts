@@ -208,9 +208,10 @@ class SineGen(torch.nn.Module):
         for i in range(self.harmonic_num + 1):
             F_mat[:, i: i + 1, :] = f0 * (i + 1) / self.sampling_rate
 
-        theta_mat = 2 * torch.pi * (torch.cumsum(F_mat, dim=-1) % 1)
-        u_dist = Uniform(low=-torch.pi, high=torch.pi)
-        phase_vec = u_dist.sample(sample_shape=(f0.size(0), self.harmonic_num + 1, 1)).to(F_mat.device)
+        pi = torch.tensor(torch.pi, device=f0.device, dtype=f0.dtype)
+        theta_mat = 2 * pi * (torch.cumsum(F_mat, dim=-1) % 1)
+        u_dist = Uniform(low=-pi, high=pi)
+        phase_vec = u_dist.sample(sample_shape=(f0.size(0), self.harmonic_num + 1, 1)).to(device=F_mat.device, dtype=F_mat.dtype)
         phase_vec[:, 0, :] = 0
 
         # generate sine waveforms

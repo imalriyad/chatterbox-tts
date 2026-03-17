@@ -258,10 +258,12 @@ class ConditionalDecoder(nn.Module):
         Returns:
             _type_: _description_
         """
+        t = t.to(dtype=self.dtype)
         t = self.time_embeddings(t).to(t.dtype)
         t = self.time_mlp(t)
 
         if self.meanflow:
+            r = r.to(dtype=self.dtype)
             r = self.time_embeddings(r).to(t.dtype)
             r = self.time_mlp(r)
             concat_embed = torch.cat([t, r], dim=1)
