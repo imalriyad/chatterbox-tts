@@ -72,7 +72,7 @@ You can modify these in the notebook:
 
 The notebook automatically installs:
 
-- PyTorch 2.7.1 with CUDA support
+- PyTorch 2.5.1 + Torchvision 0.20.1 (CUDA 11.8)
 - Gradio 5.44.1
 - All Chatterbox TTS dependencies
 - System packages (ffmpeg)
@@ -135,7 +135,18 @@ Runtime → Restart runtime
 ```python
 # Re-run Step 1 (Install Dependencies)
 # Make sure all cells complete without errors
+# NOTE: Ensure torch version is 2.5.1, not 2.7.1
 ```
+
+### "operator torchvision::nms does not exist" Error
+
+**Solution:**
+This happens when `torchvision` and `torch` versions are out of sync. 
+In the notebook Step 1, make sure your installation command looks like this:
+```python
+!pip install -q torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu118
+```
+After running this, go to **Runtime → Restart runtime** before proceeding.
 
 ### Models Won't Download
 
