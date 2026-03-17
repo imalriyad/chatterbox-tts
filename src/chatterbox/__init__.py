@@ -1,9 +1,12 @@
 try:
-    from importlib.metadata import version
+    from importlib.metadata import version, PackageNotFoundError
 except ImportError:
-    from importlib_metadata import version  # For Python <3.8
+    from importlib_metadata import version, PackageNotFoundError
 
-__version__ = version("chatterbox-tts")
+try:
+    __version__ = version("chatterbox-tts")
+except PackageNotFoundError:
+    __version__ = "0.1.0-dev"
 
 
 from .tts import ChatterboxTTS
