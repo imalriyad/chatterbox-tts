@@ -447,7 +447,7 @@ class T3(nn.Module):
         speech_hidden = hidden_states[:, -1:]
         speech_logits = self.speech_head(speech_hidden)
 
-        processed_logits = logits_processors(speech_start_token, speech_logits[:, -1, :])
+        processed_logits = logits_processors(speech_start_token, speech_logits[:, -1, :]).float()
         probs = F.softmax(processed_logits, dim=-1)
         next_speech_token = torch.multinomial(probs, num_samples=1)
 
@@ -468,7 +468,7 @@ class T3(nn.Module):
             speech_logits = self.speech_head(hidden_states)
 
             input_ids = torch.cat(generated_speech_tokens, dim=1)
-            processed_logits = logits_processors(input_ids, speech_logits[:, -1, :])
+            processed_logits = logits_processors(input_ids, speech_logits[:, -1, :]).float()
             if torch.all(processed_logits == -float("inf")):
                 print("Warning: All logits are -inf")
                 break

@@ -126,6 +126,10 @@ class S3Token2Mel(torch.nn.Module):
         if isinstance(ref_wav, np.ndarray):
             ref_wav = torch.from_numpy(ref_wav).float()
 
+        # Ensure ref_wav is float before moving to device, if it's not already
+        if not torch.is_floating_point(ref_wav):
+            ref_wav = ref_wav.float()
+
         if ref_wav.device != device:
             ref_wav = ref_wav.to(device)
 

@@ -212,7 +212,7 @@ class ChatterboxTurboTTS:
         except Exception as e:
             print(f"Warning: Error in norm_loudness, skipping: {e}")
 
-        return wav
+        return wav.astype('float32')
 
     def prepare_conditionals(self, wav_fpath, exaggeration=0.5, norm_loudness=True):
         ## Load and norm reference wav
