@@ -34,16 +34,34 @@ def format_voice_display_name(voice_name):
 def load_voices():
     """Load all available voice samples from the voice_samples directory."""
     VOICES["samples"].clear()
-    if not os.path.exists(VOICE_DIR):
-        print(f"⚠️  Voice directory not found at: {VOICE_DIR}")
+    
+    # Try to find the correct voice directory
+    # Possible locations:
+    # 1. modules/voice_samples (standard location relative to config.py)
+    # 2. project_root/voice_samples (alternate location)
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    alternate_voice_dir = os.path.join(project_root, "voice_samples")
+    
+    target_dir = None
+    if os.path.exists(VOICE_DIR) and any(f.lower().endswith(".wav") for f in os.listdir(VOICE_DIR)):
+        target_dir = VOICE_DIR
+    elif os.path.exists(alternate_voice_dir) and any(f.lower().endswith(".wav") for f in os.listdir(alternate_voice_dir)):
+        target_dir = alternate_voice_dir
+        
+    if not target_dir:
+        # Default fallback to VOICE_DIR defined in config
+        target_dir = VOICE_DIR
+        os.makedirs(target_dir, exist_ok=True)
+        print(f"⚠️  Warning: No .wav voice samples found in: {os.path.abspath(target_dir)}")
         return []
         
-    files = [f for f in os.listdir(VOICE_DIR) if f.endswith(".wav")]
-    print(f"📂 Loading {len(files)} voices from: {VOICE_DIR}")
+    # Use lowercase check for extension to avoid Windows/Linux case sensitivity issues
+    files = [f for f in os.listdir(target_dir) if f.lower().endswith(".wav")]
+    print(f"📂 Found {len(files)} voice samples in: {os.path.abspath(target_dir)}")
     
     for name in files:
         base = os.path.splitext(name)[0]
-        wav_path = os.path.join(VOICE_DIR, name)
+        wav_path = os.path.join(target_dir, name)
         VOICES["samples"][base] = wav_path
         
     return list(VOICES["samples"].keys())
@@ -53,27 +71,33 @@ def get_voices_for_language(language_code):
     """Get voices available for a specific language (cloned + default sample)."""
     voices = []
     
+    # Auto-load voices if the cache is empty
+    if not VOICES["samples"]:
+        load_voices()
+    
     # Add default sample for this language if available
     if language_code in LANGUAGE_CONFIG:
-        voices.append(f"Default ({SUPPORTED_LANGUAGES[language_code]})")
+        # Fallback for name if display name is missing
+        lang_name = SUPPORTED_LANGUAGES.get(language_code, language_code)
+        voices.append(f"Default ({lang_name})")
     
     # Add cloned voices for this language
     for voice_name in VOICES["samples"].keys():
-        # Check if voice has language suffix
+        # Check if voice has language suffix (e.g., _hi, _fr)
         if voice_name.endswith(f"_{language_code}"):
             # Remove language suffix for display
             base_name = voice_name.replace(f"_{language_code}", "")
             display_name = format_voice_display_name(base_name)
             voices.append(display_name)
         elif language_code == "en":
-            # For English, check if it's a voice without language suffix
-            # but might have gender suffix
-            # Skip if it has another language code
+            # For English, include voices without a language suffix
+            # provided they don't have a suffix belonging to another supported language
             has_other_lang = any(voice_name.endswith(f"_{code}") for code in SUPPORTED_LANGUAGES.keys() if code != "en")
             if not has_other_lang:
                 display_name = format_voice_display_name(voice_name)
                 voices.append(display_name)
     
+    print(f"📊 get_voices_for_language('{language_code}'): Returned {len(voices)} voices")
     return voices
 
 
