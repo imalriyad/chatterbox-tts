@@ -33,7 +33,6 @@ from modules.generation_functions import (
 
 # Import UI components
 from modules.ui_components import (
-    create_header,
     create_tts_tab,
     create_multilingual_tab,
     create_voice_conversion_tab,
@@ -83,8 +82,6 @@ with gr.Blocks(title="Chatterbox TTS Enhanced", theme=gr.themes.Soft(), css=CUST
     vc_model_state = gr.State(None)
     mtl_model_state = gr.State(None)
     
-    # Header
-    create_header()
     
     # Create tabs
     with gr.Tab("⚡ Turbo TTS"):
