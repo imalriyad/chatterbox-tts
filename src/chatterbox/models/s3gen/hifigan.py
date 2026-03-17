@@ -208,8 +208,8 @@ class SineGen(torch.nn.Module):
         for i in range(self.harmonic_num + 1):
             F_mat[:, i: i + 1, :] = f0 * (i + 1) / self.sampling_rate
 
-        theta_mat = 2 * np.pi * (torch.cumsum(F_mat, dim=-1) % 1)
-        u_dist = Uniform(low=-np.pi, high=np.pi)
+        theta_mat = 2 * torch.pi * (torch.cumsum(F_mat, dim=-1) % 1)
+        u_dist = Uniform(low=-torch.pi, high=torch.pi)
         phase_vec = u_dist.sample(sample_shape=(f0.size(0), self.harmonic_num + 1, 1)).to(F_mat.device)
         phase_vec[:, 0, :] = 0
 
