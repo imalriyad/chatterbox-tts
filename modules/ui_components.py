@@ -291,11 +291,11 @@ def create_turbo_tab():
             `[sniff]` `[gasp]` `[chuckle]` `[laugh]`
             
             **Example:**
-            *"Hi there, Sarah here from MochaFone calling you back [chuckle], have you got one minute to chat about the billing issue?"*
+            *"Hi there, Riyad here from MochaFone calling you back [chuckle], have you got one minute to chat about the billing issue?"*
             """)
             
             text_turbo = gr.Textbox(
-                value="Hi there! [chuckle] I'm The Oracle Guy, and I'm unlocking the secrets of AI with Chatterbox-Turbo!",
+                value="Hi there! This Riyad from MochaFone calling you back [chuckle], have you got one minute to chat about the billing issue?",
                 label="Text to synthesize (unlimited length - smart chunking enabled)",
                 max_lines=5,
                 placeholder="Enter text with optional paralinguistic tags like [chuckle], [laugh], [sigh]...",

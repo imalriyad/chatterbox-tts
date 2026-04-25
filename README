@@ -1,0 +1,126 @@
+# 🚀 Chatterbox TTS (Modern Setup by Riyad)
+
+This is a **modified + fixed version** of the original project to run on **Python 3.13**.
+
+Original repo was built for older Python versions and breaks due to:
+
+* NumPy < 1.26
+* Old PyTorch versions
+* Deprecated Python internals
+
+This version upgrades dependencies so you can **install directly from `requirements.txt`** without manual fixes.
+
+---
+
+## ⚙️ Requirements
+
+* Python **3.13**
+* pip (latest)
+* Windows (tested)
+
+---
+
+## 📦 Installation
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/imalriyad/chatterbox-tts.git
+cd chatterbox-tts
+```
+
+---
+
+### 2. Create virtual environment (recommended)
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+---
+
+### 3. Upgrade core tools
+
+```bash
+pip install --upgrade pip setuptools wheel
+```
+
+---
+
+### 4. Install dependencies (ONE COMMAND)
+
+All versions are already fixed inside `requirements.txt`.
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## ▶️ Run the app
+
+```bash
+python app.py
+```
+
+---
+
+## 🧠 What was changed
+
+The original repo is outdated. I updated it to work with modern Python:
+
+* ✅ `numpy → >=2.3.0`
+* ✅ `torch → >=2.6.0`
+* ✅ removed incompatible version locks
+* ✅ fixed install flow (no more build errors)
+* ✅ works on Python 3.13
+
+---
+
+## ⚠️ Notes
+
+* This is a **modernized environment**, not original behavior
+* Some dependencies are newer than what repo was designed for
+* If any module error appears, install it manually:
+
+  ```bash
+  pip install <missing-package>
+  ```
+
+---
+
+## 🧨 If something breaks
+
+You’re running this on a bleeding-edge Python version.
+
+That means:
+
+* some libraries may lag behind
+* you may need small manual fixes
+
+If you want zero friction:
+👉 use Python 3.10
+
+---
+
+## 👨‍💻 Maintained by
+
+**Riyad (Al Riyad)**
+Full-stack developer
+GitHub: https://github.com/imalriyad
+
+---
+
+## 🎯 Final Note
+
+Running the app is step 1.
+
+If you want real results (YouTube, content, voice quality):
+
+* your **script matters more than the model**
+* pacing + pauses = everything
+
+---
+
+Build. Test. Improve.
