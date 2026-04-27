@@ -295,7 +295,7 @@ def create_turbo_tab():
             """)
             
             text_turbo = gr.Textbox(
-                value="Hi there! This Riyad from MochaFone calling you back [chuckle], have you got one minute to chat about the billing issue?",
+                value="Hi there! This is Riyad from MochaFone calling you back [chuckle], have you got one minute to chat about the billing issue?",
                 label="Text to synthesize (unlimited length - smart chunking enabled)",
                 max_lines=5,
                 placeholder="Enter text with optional paralinguistic tags like [chuckle], [laugh], [sigh]...",
